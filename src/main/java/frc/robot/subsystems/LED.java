@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.sensors.Camera;
+import static frc.robot.Constants.*;
 
 public class LED {
     public AddressableLED strip1 = new AddressableLED(2);
@@ -29,23 +30,23 @@ public class LED {
 
     public void teleopAction(){
         if (Camera.getLeftDetecting()){
-            if (Camera.getLeftX() <= 16 && Camera.getLeftX() >= 0) {
-                setLights(0, 255, 0);
+            if (Camera.getLeftX() <= LED_LEFT_THRESH_HIGH && Camera.getLeftX() >= LED_LEFT_THRESH_LOW) {
+                setLights(LED_DETECT_CORRECT);
                 // if the camera is deteting and is within the thresholds, turn the lights green
             } else {
-                setLights(255, 0, 0);
+                setLights(LED_DETECT_BAD);
                 // if the camera is detecting and is not within the thersholds, turn the lights red
             }
         } else if (Camera.getRightDetecting()){
-            if (Camera.getRightX() >= -16 && Camera.getRightX() <= 0) {
-                setLights(0, 255, 0);
+            if (Camera.getRightX() <= LED_RIGHT_THRESH_HIGH && Camera.getRightX() >= LED_LEFT_THRESH_LOW) {
+                setLights(LED_DETECT_CORRECT);
                 // if the camera is deteting and is within the thresholds, turn the lights green
             } else {
-                setLights(255, 0, 0);
+                setLights(LED_DETECT_BAD);
                 // if the camera is detecting and is not within the thersholds, turn the lights red
             }
         } else {
-            setLights(0, 0, 255);
+            setLights(LED_TELEOP_DEFAULT);
             // if the camera isnt detecting, set the lights to blue
         }
     }
@@ -57,10 +58,10 @@ public class LED {
 
     public void autonAction(){
         if (team == 0) {
-            setLights(0, 0, 255);
+            setLights(LED_AUTON_BLUE);
             // if we are on the blue alliance set lights to blue
         } else if (team == 1) {
-            setLights(255, 0, 0);
+            setLights(LED_AUTON_RED);
             // if we are on the red alliance set lights to red
         }
     }
@@ -71,6 +72,12 @@ public class LED {
         }
         strip1.setData(strip1Buffer);
         // function to set lights a color to conserve space and time
+    }
+
+    private void setLights(int[] rgb) {
+        for (var i = 0; i < strip1Buffer.getLength(); i++) {
+            strip1Buffer.setRGB(i, rgb[0], rgb[1], rgb[2]); 
+        }
     }
 }
 
