@@ -71,24 +71,17 @@ public class LED {
             strip1Buffer.setRGB(i, 0, 0, 0); 
         }
         strip1.setData(strip1Buffer);
-        // function to set lights a color to conserve space and time
+        // function to set lights a color with 3 integer values
     }
 
     private void setLights(int[] rgb) {
         for (var i = 0; i < strip1Buffer.getLength(); i++) {
             strip1Buffer.setRGB(i, rgb[0], rgb[1], rgb[2]); 
         }
+        strip1.setData(strip1Buffer);
+        // function to set lights a color with an integer array with 3 values
     }
 }
-
-
-
-
-
-
-
-
-
 
 
 
