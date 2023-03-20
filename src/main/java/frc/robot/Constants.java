@@ -145,7 +145,7 @@ public final class Constants {
     public static final double GRIPPER_HOLD_POWER = -0.4;
 
 
-    // LED constants
+    // LED constants (rgb)
 
     public static final int[] LED_TELEOP_DEFAULT = {0, 0, 255};
     public static final int[] LED_AUTON_RED = {255, 0, 0};
