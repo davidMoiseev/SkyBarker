@@ -156,6 +156,9 @@ public final class Constants {
     public static final int[] LED_DETECT_CORRECT = {0, 255, 0};
     public static final int[] LED_DETECT_BAD = {255, 0, 0};
 
+    public static final int[] LED_CUBE_PICKUP = {196, 46, 255};
+    public static final int[] LED_CONE_PICKUP = {252, 236, 0};
+
     public static final double LED_LEFT_THRESH_LOW = 0;
     public static final double LED_LEFT_THRESH_HIGH = 16;
 

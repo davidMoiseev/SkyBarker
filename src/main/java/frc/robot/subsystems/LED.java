@@ -3,6 +3,8 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.RobotCommander;
+import frc.robot.TeleopCommander;
 import frc.robot.sensors.Camera;
 import static frc.robot.Constants.*;
 
@@ -26,9 +28,17 @@ public class LED {
             team = 1;
         }
         //get the alliance color and translate it to an int
+
+        if (team == 0) {
+            setLights(LED_AUTON_BLUE);
+            // if we are on the blue alliance set lights to blue
+        } else if (team == 1) {
+            setLights(LED_AUTON_RED);
+            // if we are on the red alliance set lights to red
+        }
     }
 
-    public void teleopAction(){
+    public void teleopAction(TeleopCommander commander){
         if (Camera.getLeftDetecting()){
             if (Camera.getLeftX() <= LED_LEFT_THRESH_HIGH && Camera.getLeftX() >= LED_LEFT_THRESH_LOW) {
                 setLights(LED_DETECT_CORRECT);
@@ -45,10 +55,12 @@ public class LED {
                 setLights(LED_DETECT_BAD);
                 // if the camera is detecting and is not within the thersholds, turn the lights red
             }
+        } else if (commander.getCubeMode()){
+            setLights(LED_CUBE_PICKUP);
         } else {
-            setLights(LED_TELEOP_DEFAULT);
-            // if the camera isnt detecting, set the lights to blue
+            setLights(LED_CONE_PICKUP);
         }
+
     }
 
     public void disabledAction(){
@@ -57,13 +69,7 @@ public class LED {
     }
 
     public void autonAction(){
-        if (team == 0) {
-            setLights(LED_AUTON_BLUE);
-            // if we are on the blue alliance set lights to blue
-        } else if (team == 1) {
-            setLights(LED_AUTON_RED);
-            // if we are on the red alliance set lights to red
-        }
+        
     }
 
     private void setLights(int red, int green, int blue){
