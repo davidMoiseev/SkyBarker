@@ -7,8 +7,8 @@ import frc.robot.sensors.Camera;
 import static frc.robot.Constants.*;
 
 public class LED {
-    public AddressableLED strip1 = new AddressableLED(2);
-    public AddressableLEDBuffer strip1Buffer = new AddressableLEDBuffer(19);
+    public AddressableLED strip1 = new AddressableLED(LED_PWM);
+    public AddressableLEDBuffer strip1Buffer = new AddressableLEDBuffer(LED_LENGTH);
     static int team = 2;
 
     public LED(){

@@ -146,6 +146,8 @@ public final class Constants {
 
 
     // LED constants (rgb)
+    public static final int LED_PWM = 2;
+    public static final int LED_LENGTH = 19;
 
     public static final int[] LED_TELEOP_DEFAULT = {0, 0, 255};
     public static final int[] LED_AUTON_RED = {255, 0, 0};
