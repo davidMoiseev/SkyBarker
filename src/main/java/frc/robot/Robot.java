@@ -119,7 +119,7 @@ public class Robot extends TimedRobot {
         blueAutoLeft3 = new BlueAutoLeft3();
         blueAutoLeft2half = new BlueAutoLeft2half();
 
-        camera.disabled();
+        // camera.disabled();
 
     }
 
@@ -140,7 +140,7 @@ public class Robot extends TimedRobot {
     public void disabledInit() {
         SmartDashboard.putString("Robot Mode", "Disabled");
 
-        camera.disabled();
+        // camera.disabled();
         arm.coastMode();
         leds.disabledAction();
     }
@@ -246,7 +246,7 @@ public class Robot extends TimedRobot {
 
         drivetrain.zero();
 
-        // camera.enabled();
+        camera.enabled();
 
         arm.brakeMode();
         arm.initilizeOffsets();
@@ -261,6 +261,6 @@ public class Robot extends TimedRobot {
         arm.brakeMode();
         gripper.action(teleopCommander);
         // hopper.HopperPeriodic(teleopCommander);
-        leds.teleopAction();
+        leds.teleopAction(teleopCommander);
     }
 }

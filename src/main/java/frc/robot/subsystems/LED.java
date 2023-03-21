@@ -48,7 +48,7 @@ public class LED {
                 // if the camera is detecting and is not within the thersholds, turn the lights red
             }
         } else if (Camera.getRightDetecting()){
-            if (Camera.getRightX() <= LED_RIGHT_THRESH_HIGH && Camera.getRightX() >= LED_LEFT_THRESH_LOW) {
+            if (Camera.getRightX() <= LED_RIGHT_THRESH_HIGH && Camera.getRightX() >= LED_RIGHT_THRESH_LOW) {
                 setLights(LED_DETECT_CORRECT);
                 // if the camera is deteting and is within the thresholds, turn the lights green
             } else {
