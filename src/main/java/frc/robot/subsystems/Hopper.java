@@ -12,7 +12,7 @@ import org.hotutilites.hotlogger.HotLogger;
 
 public class Hopper {
     public static int PixieCam = 0;
-    public static Servo fingerServo = new Servo(FINGER_SERVO);
+    // public static Servo fingerServo = new Servo(FINGER_SERVO);
     // public static DigitalInput sensorTop= new DigitalInput(TOP_SENSOR);
     // public static DigitalInput sensorLeft= new DigitalInput(LEFT_SENSOR);
     // public static DigitalInput sensorRight= new DigitalInput(RIGHT_SENSOR);

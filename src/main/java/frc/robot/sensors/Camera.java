@@ -12,11 +12,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Camera {
     public static NetworkTable limelightLeft;
-    public static NetworkTable limelightRight;
+    public static NetworkTable limelightRight;  
     static NetworkTableEntry leftX;
     static NetworkTableEntry rightX;
     static NetworkTableEntry leftY;
     static NetworkTableEntry rightY;
+    static NetworkTableEntry leftTagDetected;
+    static NetworkTableEntry rightTagDetected;
 
     // static NetworkTableEntry leftTagDetected;
     // static NetworkTableEntry rightTagDetected;
@@ -31,8 +33,8 @@ public class Camera {
         leftY = limelightLeft.getEntry("ty");
         rightX = limelightRight.getEntry("tx");
         rightY = limelightRight.getEntry("ty");
-        // leftTagDetected = limelightLeft.getEntry("tv");
-        // rightTagDetected = limelightRight.getEntry("tv");
+        leftTagDetected = limelightLeft.getEntry("tv");
+        rightTagDetected = limelightRight.getEntry("tv");
 
         // Alliance color = Alliance.Blue;
 
@@ -72,6 +74,14 @@ public class Camera {
 
     public static double getRightY(){
         return rightY.getDouble(0);
+    }
+
+    public static boolean getLeftDetecting(){
+        return leftTagDetected.getDouble(0) == 1;
+    }
+
+    public static boolean getRightDetecting(){
+        return rightTagDetected.getDouble(0) == 1;
     }
 
     public void logData(){
