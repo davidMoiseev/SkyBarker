@@ -5,15 +5,19 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.RobotCommander;
 import frc.robot.TeleopCommander;
-import frc.robot.sensors.Camera;
-import frc.robot.subsystems.Arm.ArmPos;
+import java.util.Random;
+
 
 import static frc.robot.Constants.*;
 
 public class LED {
     public AddressableLED strip1 = new AddressableLED(LED_PWM);
     public AddressableLEDBuffer strip1Buffer = new AddressableLEDBuffer(LED_LENGTH);
-    static int team = 2;
+    static Alliance alliance = Alliance.Red;
+    public Random assigner = new Random(LED_LENGTH);
+    public Random redRandom = new Random(LED_RED_DEVIATION);
+    public Random yellowRandom = new Random(LED_YELLOW_DEVIATION);
+    public int resetTimer = 0;
 
     public LED(){
         strip1.setLength(strip1Buffer.getLength());
@@ -22,54 +26,38 @@ public class LED {
         // initialize leds as off
     }
 
-    public void autonInit() {
-        Alliance alliance = DriverStation.getAlliance();
-        if (alliance == Alliance.Blue) {
-            team = 0;
-        } else if (alliance == Alliance.Red) {
-            team = 1;
+    public void fancyDisable() {
+        for (var i = 0; i <= LED_FANCY_ITERATION; i++) {
+            strip1Buffer.setRGB(assigner.nextInt(LED_LENGTH), LED_FANCY_BASE[0] - redRandom.nextInt(LED_RED_DEVIATION), LED_FANCY_BASE[1] + yellowRandom.nextInt(LED_YELLOW_DEVIATION), LED_FANCY_BASE[2]);
         }
-        //get the alliance color and translate it to an int
+         
+        if (resetTimer == LED_RESET_TIMER) {
+            resetTimer = 0;
+            setLights(LED_FANCY_BASE);
+        }
+        strip1.setData(strip1Buffer);
+	}
 
-        if (team == 0) {
+    public void autonInit() {
+        alliance = DriverStation.getAlliance();
+
+        if (alliance == Alliance.Blue) {
             setLights(LED_AUTON_BLUE);
             // if we are on the blue alliance set lights to blue
-        } else if (team == 1) {
+        } else if (alliance == Alliance.Red) {
             setLights(LED_AUTON_RED);
             // if we are on the red alliance set lights to red
         }
     }
 
     public void teleopAction(TeleopCommander commander){
-        if(commander.getArmPosition() == ArmPos.topNodeCone || 
-        commander.getArmPosition() == ArmPos.topNodeCube || 
-        commander.getArmPosition() == ArmPos.middleNodeCone || 
-        commander.getArmPosition() == ArmPos.middleNodeCube ||
-        commander.getArmPosition() == ArmPos.lowerNode){
-            if (Camera.getLeftDetecting()){
-                if (Camera.getLeftX() <= LED_LEFT_THRESH_HIGH && Camera.getLeftX() >= LED_LEFT_THRESH_LOW) {
-                    setLights(LED_DETECT_CORRECT);
-                    // if the camera is deteting and is within the thresholds, turn the lights green
-                } else {
-                    setLights(LED_DETECT_BAD);
-                    // if the camera is detecting and is not within the thersholds, turn the lights red
-                }
-            } else if (Camera.getRightDetecting()){
-                if (Camera.getRightX() <= LED_RIGHT_THRESH_HIGH && Camera.getRightX() >= LED_RIGHT_THRESH_LOW) {
-                    setLights(LED_DETECT_CORRECT);
-                    // if the camera is deteting and is within the thresholds, turn the lights green
-                } else {
-                    setLights(LED_DETECT_BAD);
-                    // if the camera is detecting and is not within the thersholds, turn the lights red
-                }
-            }
+        
+        if (commander.getCubeMode()){
+            setLights(LED_CUBE_PICKUP);
         } else {
-            if (commander.getCubeMode()){
-                setLights(LED_CUBE_PICKUP);
-            } else {
-                setLights(LED_CONE_PICKUP);
-            }
+            setLights(LED_CONE_PICKUP);
         }
+        
     }
 
     public void disabledAction(){

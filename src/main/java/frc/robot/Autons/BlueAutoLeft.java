@@ -90,6 +90,7 @@ public class BlueAutoLeft extends AutonBase{
             case driveToObject1:
                 driving = true;
                 armPos = ArmPos.intake;
+                
                 if(timer.get() > .8){
                     intakePos = IntakePos.collectCube;
                     intakeSpeed = IntakeSpeed.onCube;

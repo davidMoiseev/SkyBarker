@@ -181,20 +181,20 @@ public class Drivetrain{
             Pigeon.getRotation2d(),
             positions,
             new Pose2d(),
-            VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
-            VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30))
+            VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(2.5)),
+            VecBuilder.fill(10,10, Units.degreesToRadians(2000))
         );
 
         poseEstimator.resetPosition(Rotation2d.fromDegrees(0), positions, new Pose2d(0,0, Rotation2d.fromDegrees(0)));
     }
 
-    public void zero(double angle){
+    public void zero(double angle, Pose2d pose){
         frontLeftModule.zeroMotorPos();
         frontRightModule.zeroMotorPos();
         backLeftModule.zeroMotorPos();
         backRightModule.zeroMotorPos();
 
-        poseEstimator.resetPosition(Rotation2d.fromDegrees(angle), positions, new Pose2d(0,0, Rotation2d.fromDegrees(angle)));
+        poseEstimator.resetPosition(Rotation2d.fromDegrees(angle), positions, pose);
     }
 
     public void zero(){
@@ -266,12 +266,32 @@ public class Drivetrain{
 
     public boolean rampPassed = false;
 
-    PIDController turn = new PIDController(.125,0,0);
+    PIDController turn = new PIDController(.125,0.01,0); // .125 // .125,0.05,0.0025
     PIDController x = new PIDController(.25,0,0);
     PIDController y = new PIDController(.06,0,0);
 
     public void teleAction(TeleopCommander commander){
-        if (commander.driver.getPOV() == 180){
+        if(commander.resetModules()){
+            zero();
+        }
+
+        if(commander.autoAim()){
+            if(!commander.useNegativeSide()){
+                chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                    commander.getForwardCommand(),
+                    commander.getStrafeCommand(),
+                    turn.calculate(Pigeon.getRotation2d().getDegrees(), 90),
+                    Pigeon.getRotation2d());
+            } else {
+                chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
+                    commander.getForwardCommand(),
+                    commander.getStrafeCommand(),
+                    turn.calculate(Pigeon.getRotation2d().getDegrees(), -90),
+                    Pigeon.getRotation2d());
+            }
+
+            setSwerveModuleStates(chassisSpeeds);
+        } else if (commander.driver.getPOV() == 180){
             setModulePositions();
         }else {
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -349,6 +369,21 @@ public class Drivetrain{
                 }
             }
             setSwerveModuleStates(chassisSpeeds);
+        } else if(autonCommader.getNewAutoBal()){
+                // if(Pigeon.getPitch() < -13.7){
+                //     chassisSpeeds = new ChassisSpeeds(
+                //         -.85,
+                //         0,
+                //         0
+                //         );
+                // } else {
+                    chassisSpeeds = new ChassisSpeeds(
+                        Pigeon.getPitch() * .035,
+                        0,
+                        0
+                    );
+                // }
+            setSwerveModuleStates(chassisSpeeds);
         } else if (autonCommader.getXMode()){
             setModulePositions();
         }else {
@@ -357,9 +392,6 @@ public class Drivetrain{
 
         SmartDashboard.putNumber("_Time", timer.get());
     }
-
-
-
 
     public void driveToPos(State state, Rotation2d theta){
         ChassisSpeeds speeds = holonomicController.calculate(poseEstimator.getEstimatedPosition(), 
@@ -375,7 +407,7 @@ public class Drivetrain{
         SmartDashboard.putNumber("Commanded Theta",theta.getDegrees());
         HotLogger.Log("TargetTheta", theta.getDegrees());
         SmartDashboard.putNumber("Commanded X", state.poseMeters.getX());
-        HotLogger.Log("TargetX", state.poseMeters.getY());
+        HotLogger.Log("TargetX", state.poseMeters.getX());
         SmartDashboard.putNumber("Commanded Y", state.poseMeters.getY());
         HotLogger.Log("TargetY", state.poseMeters.getY());
     }
@@ -398,8 +430,16 @@ public class Drivetrain{
         positions[3].angle = new Rotation2d(backRightModule.getSteerAngle());
         positions[3].distanceMeters = backRightPos;
 
-        // if(Camera.rightAprilDetected()){
-        //     poseEstimator.addVisionMeasurement(Camera.getRightBotPose(), Timer.getFPGATimestamp());
+        // if((Pigeon.getRotation2d().getDegrees() > 45 && Pigeon.getRotation2d().getDegrees() < 135) || (Pigeon.getRotation2d().getDegrees() < -45 && Pigeon.getRotation2d().getDegrees() > -135)){
+        //     if(Camera.getRightDetecting()){
+        //         // poseEstimator.addVisionMeasurement(Camera.getRightBotPose(), Timer.getFPGATimestamp());
+        //         poseEstimator.addVisionMeasurement(Camera.getRightBotPose(), Timer.getFPGATimestamp() - (Camera.getTargetingLatencyRight()/1000) - (Camera.getCaptureLatencyRight()/1000));
+        //     }
+    
+        //     if(Camera.getLeftDetecting() && Camera.isLeftGood()){
+        //         // poseEstimator.addVisionMeasurement(Camera.getLeftBotPose(), Timer.getFPGATimestamp());
+        //         poseEstimator.addVisionMeasurement(Camera.getLeftBotPose(), Timer.getFPGATimestamp() - (Camera.getTargetingLatencyLeft()/1000) - (Camera.getCaptureLatencyLeft()/1000));
+        //     }
         // }
 
         poseEstimator.updateWithTime(Timer.getFPGATimestamp(), Pigeon.getRotation2d(), positions);

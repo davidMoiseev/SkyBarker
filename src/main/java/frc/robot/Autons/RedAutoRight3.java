@@ -26,28 +26,26 @@ public class RedAutoRight3 extends AutonBase{
     enum AutoState {
         firstPlace,
         driveToObject1,
-        pause1,
         driveToObject2,
         score2,
         driveToObject3,
-        pause2,
         driveToObject4,
         score3,
-        end
+        end,
+        pause1,
+        pause2
     }
+
+    public Trajectory firstCube;
+    public Trajectory firstScore;
+    public Trajectory secondCube;
+    public Trajectory secondScore;
 
     public AutoState autoState;
 
     public Timer timer = new Timer();
 
     int point = 0;
-
-    List<Pose2d> path = List.of(new Pose2d(new Translation2d(0,0), Rotation2d.fromDegrees(90)),
-                                new Pose2d(new Translation2d(5.3,-.29), Rotation2d.fromDegrees(10)), //4.82, .5
-                                new Pose2d(new Translation2d(-.05,-.125), Rotation2d.fromDegrees(90)),
-                                new Pose2d(new Translation2d(4.75, -.3), Rotation2d.fromDegrees(90)),
-                                new Pose2d(new Translation2d(4.9, 1.5), Rotation2d.fromDegrees(90)),
-                                new Pose2d(new Translation2d(3, .25), Rotation2d.fromDegrees(90)));
 
     Trajectory trajectory;
 
@@ -59,10 +57,15 @@ public class RedAutoRight3 extends AutonBase{
 
     public void reset(){
         desState = new State();
-        targetTheta = Rotation2d.fromDegrees(90);
+        targetTheta = Rotation2d.fromDegrees(-90);
 
         point = 0;
         
+        firstCube = importTraj("pathweaver/output/firstcube.wpilib.json");
+        firstScore = importTraj("pathweaver/output/firstscore.wpilib.json");
+        secondCube = importTraj("pathweaver/output/secondcube.wpilib.json");
+        secondScore = importTraj("pathweaver/output/scoresecondcube.wpilib.json");
+
         timer.reset();
         timer.start();
 
@@ -75,22 +78,16 @@ public class RedAutoRight3 extends AutonBase{
         switch(autoState){
             case firstPlace:
                 driving = false;
-                if(!Arm.getAchivedPostion()){
+                if(!Arm.getAchivedPostion() || timer.get() < .75){
                     gripperSpeed = -.4;
                     armPos = ArmPos.topNodeCone;
                     armTime = timer.get();
                 } else {
-                    if(Math.abs(armTime - timer.get()) < .25){
+                    if(Math.abs(armTime - timer.get()) < .35){
                         gripperSpeed = .75;
                     } else {
                         armPos = ArmPos.packagePos;
                         gripperSpeed = 0;
-
-                        trajectory = createTrajectory(path.get(point), path.get(point+1),
-                        Rotation2d.fromDegrees(-40), Rotation2d.fromDegrees(10),
-                        4,2.5);
-                
-                        point++;
 
                         timer.reset();
 
@@ -100,36 +97,20 @@ public class RedAutoRight3 extends AutonBase{
             break;
             case driveToObject1:
                 driving = true;
-                armPos = ArmPos.intake;
-                if(timer.get() > .5){
+                if(timer.get() > 1){
+                    // armPos = ArmPos.Zero;
                     intakePos = IntakePos.collectCube;
                     intakeSpeed = IntakeSpeed.onCube;
                 }
+                // } else {
+                    armPos = ArmPos.intake;
+                // }
                 
-                desState = trajectory.sample(timer.get());
-                targetTheta = path.get(point).getRotation();
+                desState = firstCube.sample(timer.get()/1.1);
+                targetTheta = Rotation2d.fromDegrees(10 + 180);
 
-                if(Math.abs(Drivetrain.getPose().getX() - path.get(point).getX()) < .1 &&
-                Math.abs(Drivetrain.getPose().getY() - path.get(point).getY()) < .1){
-                    timer.reset();
-
-                    autoState = AutoState.pause1;
-                }
-            break;
-            case pause1:
-                driving = false;
-
-                intakePos = IntakePos.cubeHandoff;
-                intakeSpeed = IntakeSpeed.cubeHandoff;
-
-                armPos = ArmPos.intake;
-                gripperSpeed = -.4;
-                if(timer.get() > .25){
-                    trajectory = createTrajectory(path.get(point), path.get(point+1), 
-                    Rotation2d.fromDegrees(12 + 180), Rotation2d.fromDegrees(-12 + 180),
-                    4,2.5);
-
-                    point++;
+                if(Math.abs(Drivetrain.getPose().getX() - firstCube.getStates().get(firstCube.getStates().size()-1).poseMeters.getX()) < .05 &&
+                Math.abs(Drivetrain.getPose().getY() - firstCube.getStates().get(firstCube.getStates().size()-1).poseMeters.getY()) < .05){
 
                     timer.reset();
 
@@ -138,25 +119,28 @@ public class RedAutoRight3 extends AutonBase{
             break;
             case driveToObject2:
                 driving = true;
-                intakeOn = false;
-                
-                intakePos = IntakePos.cubeHandoff;
-                intakeSpeed = IntakeSpeed.cubeHandoff;
 
-                if(timer.get() > 1.25){
-                    armPos = ArmPos.topNodeCube;
-                } else if(timer.get() > .75){
-                    armPos = ArmPos.packagePos;
-                }
+                intakePos = IntakePos.cubeHandoff;
 
                 gripperSpeed = -.75;
-                
-                desState = trajectory.sample(timer.get());
-                targetTheta = path.get(point).getRotation();
 
-                if(Math.abs(Drivetrain.getPose().getX() - path.get(point).getX()) < .075 &&
-                Math.abs(Drivetrain.getPose().getY() - path.get(point).getY()) < .075){                    
+                if(timer.get() > 2.25){
+                    armPos = ArmPos.topNodeCube;
+                } else if(timer.get() > 1.25){
+                    armPos = ArmPos.packagePos;
+                    targetTheta = Rotation2d.fromDegrees(95 + 180);
+                    hopperSpeed = 0;
+                } else {
+                    hopperSpeed = -.15;
+                }
+                
+                desState = firstScore.sample(timer.get()/1.1);
+
+                if(Math.abs(Drivetrain.getPose().getX() - firstScore.getStates().get(firstScore.getStates().size()-1).poseMeters.getX()) < .05 &&
+                Math.abs(Drivetrain.getPose().getY() - firstScore.getStates().get(firstScore.getStates().size()-1).poseMeters.getY()) < .05){                
                     timer.reset();
+
+                    intakeSpeed = IntakeSpeed.out;
                     
                     gripperSpeed = 0;
 
@@ -164,71 +148,47 @@ public class RedAutoRight3 extends AutonBase{
                 }
             break;
             case score2:
-                intakeSpeed = IntakeSpeed.none;
-
                 driving = false;
-                if(timer.get() < .75){
-                    gripperSpeed = -.4;
-                    armPos = ArmPos.topNodeCube;
-                } else {
-                    if(timer.get() < 1.25){
-                        gripperSpeed = .5;
-                    } else if(timer.get() < 1.75){
-                        armPos = ArmPos.intake;
-                        gripperSpeed = 0;
-                    } else {
-                        trajectory = TrajectoryGenerator.generateTrajectory(
-                        new Pose2d(path.get(point).getTranslation(), Rotation2d.fromDegrees(-5)), 
-                        List.of(path.get(point+1).getTranslation()),
-                        new Pose2d(path.get(point+2).getTranslation(), Rotation2d.fromDegrees(90)), 
-                        new TrajectoryConfig(3.5, 2));
-    
-                        point += 2;
+                
+                // if(timer.get() < .25){
+                //     intakeSpeed = IntakeSpeed.out;
+                // } else {
+                //     intakeSpeed = IntakeSpeed.none;
 
-                        timer.reset();
+                //     timer.reset();
 
-                        autoState = AutoState.driveToObject3;
-                    }
+                //     autoState = AutoState.driveToObject3;
+                // }
+                if(timer.get() > 1.1){
+                    gripperSpeed = .75;
+                } 
+                if(timer.get() >  1.5){
+                    gripperSpeed = 0;
+                    
+                    armPos = ArmPos.intake;
+
+                    timer.reset();
+
+                    autoState = AutoState.driveToObject3;
                 }
             break;
             case driveToObject3:
                 driving = true;
-                desState = trajectory.sample(timer.get());
-                targetTheta = path.get(point).getRotation();
+                desState = secondCube.sample(timer.get());
+                targetTheta = Rotation2d.fromDegrees(45 + 180);
 
                 armPos = ArmPos.intake;
 
-                if(timer.get() > 1.5){
+                if(timer.get() > 1.25){
                     intakePos = IntakePos.collectCube;
                     intakeSpeed = IntakeSpeed.onCube;
                 }
 
-                if(Math.abs(Drivetrain.getPose().getX() - path.get(point).getX()) < .05 &&
-                Math.abs(Drivetrain.getPose().getY() - path.get(point).getY()) < .05){       
-                    
+                if(Math.abs(Drivetrain.getPose().getX() - secondCube.getStates().get(secondCube.getStates().size()-1).poseMeters.getX()) < .05 &&
+                Math.abs(Drivetrain.getPose().getY() - secondCube.getStates().get(secondCube.getStates().size()-1).poseMeters.getY()) < .05){                
                     timer.reset();
                     
                     gripperSpeed = 0;
-
-                    autoState = AutoState.pause2;
-                }
-            break;
-            case pause2:
-                driving = false;
-
-                intakePos = IntakePos.collectCube;
-                intakeSpeed = IntakeSpeed.onCube;
-
-                armPos = ArmPos.intake;
-                gripperSpeed = -.4;
-                if(timer.get() > .25){
-                    trajectory = createTrajectory(path.get(point), path.get(point+1), 
-                    Rotation2d.fromDegrees(90 + 180), Rotation2d.fromDegrees(0 + 180),
-                    4,2.5);
-
-                    point++;
-
-                    timer.reset();
 
                     autoState = AutoState.driveToObject4;
                 }
@@ -236,43 +196,38 @@ public class RedAutoRight3 extends AutonBase{
             case driveToObject4:
                 driving = true;
 
-                desState = trajectory.sample(timer.get());
-                targetTheta = path.get(point).getRotation();
-
-                intakeOn = false;
+                desState = secondScore.sample(timer.get());
+                targetTheta = Rotation2d.fromDegrees(-179 + 180);
                 
                 intakePos = IntakePos.pack;
                 intakeSpeed = IntakeSpeed.none;
 
-                // gripperSpeed = -.75;
+                gripperSpeed = -.75;
 
-                if(Math.abs(Drivetrain.getPose().getX() - path.get(point).getX()) < .05 &&
-                Math.abs(Drivetrain.getPose().getY() - path.get(point).getY()) < .05){       
+                if(Math.abs(Drivetrain.getPose().getX() - secondScore.getStates().get(secondScore.getStates().size()-1).poseMeters.getX()) < .05 &&
+                Math.abs(Drivetrain.getPose().getY() - secondScore.getStates().get(secondScore.getStates().size()-1).poseMeters.getY()) < .05){                    
                     timer.reset();
                     
                     gripperSpeed = 0;
 
-                    autoState = AutoState.end;
+                    autoState = AutoState.score3;
                 }
             break;
             case score3:
                 driving = false;
-                if(timer.get() < .75){
-                    gripperSpeed = -.4;
-                    armPos = ArmPos.middleNodeCube;
-                } else {
-                    if(timer.get() < 1.25){
-                        gripperSpeed = .5;
-                    } else if(timer.get() < 1.75){
-                        armPos = ArmPos.packagePos;
-                        gripperSpeed = 0;
-                    } else {
 
-                        timer.reset();
+                intakeSpeed = IntakeSpeed.out;
+                // if(timer.get() < ){
+                //     armPos = ArmPos.packagePos;
+                // } else {
+                //     armPos = ArmPos.yeetCube;
+                // }
 
-                        autoState = AutoState.end;
-                    }
-                }
+                // if(timer.get() < 1.5){
+                //     gripperSpeed = -.5;
+                // } else {
+                //     gripperSpeed = 1;
+                // }
             break;
             case end:
                 driving = false;

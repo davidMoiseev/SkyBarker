@@ -219,9 +219,9 @@ public class Intake {
         SmartDashboard.putBoolean("_Breaking Things", robotCommander.getCubeStopIntake());
 
         if(intakePos == IntakePos.cubeHandoff && Math.abs(angle - intakePos.getPositionReading()) < 10){
-            speedMotor1.set(TalonFXControlMode.PercentOutput, -1);
+            // speedMotor1.set(TalonFXControlMode.PercentOutput, -1);
             speedMotor2.set(TalonFXControlMode.PercentOutput, 1);
-        } else if(!ballSensor.get() && intakeSpeed != IntakeSpeed.out){
+        } else if(!ballSensor.get() && intakeSpeed != IntakeSpeed.out && intakeSpeed != IntakeSpeed.autoOut){
             if(tick < INTAKE_DELAY){
                 speedMotor1.set(TalonFXControlMode.PercentOutput, speed);
                 speedMotor2.set(TalonFXControlMode.PercentOutput, -speed);
@@ -231,8 +231,26 @@ public class Intake {
                 speedMotor2.set(TalonFXControlMode.PercentOutput, 0);
             }
         } else {
-            speedMotor1.set(TalonFXControlMode.PercentOutput, speed);
-            speedMotor2.set(TalonFXControlMode.PercentOutput, -speed);
+            if(robotCommander.intakeCone()){
+                if(robotCommander.getIntakeSpeed() == IntakeSpeed.out){
+                    speedMotor1.set(TalonFXControlMode.PercentOutput, speed);
+                    speedMotor2.set(TalonFXControlMode.PercentOutput, speed);
+                } else {
+                    speedMotor1.set(TalonFXControlMode.PercentOutput, speed);
+                    speedMotor2.set(TalonFXControlMode.PercentOutput, speed);
+                }
+                
+            } else {
+                if(robotCommander.getIntakeSpeed() == IntakeSpeed.out){
+                    // speedMotor1.set(TalonFXControlMode.PercentOutput, speed);
+                    speedMotor2.set(TalonFXControlMode.PercentOutput, -speed);
+                } else {
+                    speedMotor1.set(TalonFXControlMode.PercentOutput, speed);
+                    speedMotor2.set(TalonFXControlMode.PercentOutput, -speed);
+                }
+
+            }
+            
             tick = 0;
         }
 

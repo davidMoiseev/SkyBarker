@@ -26,34 +26,40 @@ public class Arm {
     double desiredIntakePos;
 
     public static enum ArmPos {
-
         packagePos(0,.1,0),
         readyPosition(-23,.1,100),
         topNodeCone(53,20,181),
         topNodeCube(55,20,181),
-        middleNodeCone(51,.2,181),
-        middleNodeCube(58,.2,181),
+        middleNodeCone(41,.2,155),
+        middleNodeCube(50,.2,155),
         lowerNode(27,.2,69),
         manual(0,0,0), // manual motor commands
         Zero(0,0,0), // No motor command
-        intake(0,10,0), 
+        intake(0,10,0),
         outOfHopperToDirection(-5,2,10), 
-        outOfDirectionToHopper1(20,5,180),
+        outOfDirectionToHopper1(20,5,175),
         outOfDirectionLowToHopper1(20,5,69),
         outOfPostiveToHopper2(-20,3,20),
-        outOfHopperToMid(40,4,180),
+        outOfHopperToMid(40,4,155),
         outOfHopperToTop(40,10,180),
         outOfHumanPlayerInitialExtension(6.8,7.5,-12),
         humanPlayerReady(6.8,22,-67),
-        humanPlayerPickup(-7,21.5,-56.2),
+        humanPlayerPickup(-5.5,21.5,-56.2),
         outOfReturnFromHumanPlayer(20,22,-25),
         intakeConeGrab(0,10,0),
         outOfHopperToGround(5,4,-10),
         outOfHopperToGround2(-35,4,-175),
-        groundGripperCone(-85,10.5,-175),
-        groundGripperConePick(-92,10.5,-175),
+        groundGripperCone(-80,10.5,-175),
+        groundGripperConePick(-92.5,10.5,-175),
         groundToHopper(-30,10,-160),
-        groundToHopper2(-5,10,-40),;
+        groundToHopper2(-5,10,-40),
+        topToGround(0,20,181),
+        yeetCubeInt(-5,7.5,0),
+        yeetCube(19,16,150),
+        yeetCubeToPack(0, 10, 0),
+        groundToTop(0, 15, -175),
+        midToHopper(20,5,161);
+        // topNodeAuto();
 
         private final double shoulder;
         public double getShoulder() {
@@ -92,17 +98,16 @@ public class Arm {
             this.shoulder = shoulder;
         }
     }
-
-        
     }
 
     public static enum IntakePos{
         station(Constants.INTAKE_STATION_POSITION),
+        humanIntake(100),
         cubeHandoff(95),
         pack(Constants.INTAKE_PACKAGE_POSITION),
-        collectCone(187),
+        collectCone(190),
         collectCube(180),
-        armMoving(110),
+        armMoving(120),
         handoff(91),
         handoffIntermediate(120),
         manual(0),
@@ -124,7 +129,8 @@ public class Arm {
         none(0,0),
         onCube(-.65,-.65),
         onCone(-.8,-.8),
-        out(.65,.65),
+        out(.65,.65), //        out(.65,.65),
+        autoOut(1,.65), //        out(.65,.65),
         cubeHandoff(-1,-1);
 
         public double speedReading1;
@@ -244,13 +250,22 @@ public class Arm {
     public enum ArmZone {
         hopper,
         negative,
-        postive, anyZone, none
+        postive, anyZone, none, ground
     }
 
 
+    // public boolean isGround(double shoulder, double extension, double elbow){
+    //     if(Math.abs(elbow) > 170 && (Math.abs(shoulder) > 80)){
+    //         return true;
+    //     } else{
+    //         return false;
+    //     }
+    // }
 
     public ArmZone determineArmZone(double shoulder, double extension, double elbow) {
 
+        // if(Math.abs(elbow) > 170 && (Math.abs(shoulder) > 80)){
+        //     return ArmZone.ground;
         if (elbow < -40 || (shoulder > 17 && shoulder < 22 && elbow < 10)) {
             return ArmZone.negative;
         } else if (elbow > 40 || (shoulder < -17 && shoulder > -22  && elbow > -10)) {
@@ -317,17 +332,11 @@ public class Arm {
         else return IntakePos.none;
     }
 
-
-    
-
     //commander.getArmPosition is the commanded position using the joysticks in the teleop commander.
     //armTargetPrevious is set to commander.getarmposition at the end of the teleop action.
 
     public void action(RobotCommander commander) {
-
         if(commander.getArmPosition() == ArmPos.intakeConeGrab){
-            
-
             if(determineZoneHandoff() == ArmZoneHandoff.armDownNotCenterIntakeDown){
                 if(extension.getExtensionPosition() < 20.5){
                 extension.goToPostion(21);
@@ -347,8 +356,6 @@ public class Arm {
                     shoulder.goToPostion(commander, 0);
                     elbow.goToPostion(0);
                     intake.IntakePeriodic (this.returnIntakePos(91), IntakeSpeed.none, commander);
-                    
-
             }
             //if the arm is up and not center, move intake down to let the arm center.
             //if the arm is up and center, the intake will move into position with the arm
@@ -372,22 +379,19 @@ public class Arm {
                 extension.goToPostion(21);;
                 shoulder.goToPostion(commander, 0);
                 elbow.goToPostion(0);
-                intake.IntakePeriodic (this.returnIntakePos(91), IntakeSpeed.none, commander);
-                
+                intake.IntakePeriodic (this.returnIntakePos(91), IntakeSpeed.none, commander);   
             }
             else if(determineZoneHandoff() == ArmZoneHandoff.armUpNotCenterIntakeDown){
                 extension.goToPostion(21);
                 shoulder.goToPostion(commander, 0);
                 elbow.goToPostion(0);
                 intake.IntakePeriodic (this.returnIntakePos(91), IntakeSpeed.none, commander);
-                
             }
             else if(determineZoneHandoff() == ArmZoneHandoff.armUpCenterIntakeDown){
                 extension.goToPostion(21);
                 shoulder.goToPostion(commander, 0);
                 elbow.goToPostion(0);
-                intake.IntakePeriodic (this.returnIntakePos(91), IntakeSpeed.none, commander);
-                
+                intake.IntakePeriodic (this.returnIntakePos(91), IntakeSpeed.none, commander);  
             }
             else if(determineZoneHandoff() == ArmZoneHandoff.armDownNotCenterIntakeUp){
                 if(intake.angleEncoder.getAbsolutePosition() > 90){
@@ -436,11 +440,7 @@ public class Arm {
                 shoulder.goToPostion(commander, 0);
                 elbow.goToPostion(0);
                 intake.IntakePeriodic (this.returnIntakePos(91), IntakeSpeed.none, commander);
-                
             }
-            
-            
-
         }
 
 
@@ -462,7 +462,59 @@ public class Arm {
             shoulder.setMotorCommand(0.0);
             actualCommand = ArmPos.Zero;
             transitionStateInProgress = false;
-        } 
+        }
+        else if((commander.getArmPosition() == ArmPos.packagePos && armTargetPrevious == ArmPos.yeetCube) || actualCommand == ArmPos.yeetCubeToPack){
+            if(Math.abs(shoulder.getShoulderAngle()) > 2 || Math.abs(elbow.getElbowAngle()) > 7.5){
+                actualCommand = ArmPos.yeetCubeToPack;
+            } else {
+                actualCommand = ArmPos.packagePos;
+            }
+        }
+        else if(commander.getArmPosition() == ArmPos.yeetCube){
+            if(shoulder.getShoulderAngle() > -4.5 && extension.getExtensionPosition() < 7){
+                actualCommand = ArmPos.yeetCubeInt;
+            } else {
+                actualCommand = ArmPos.yeetCube;
+            }
+        }
+        // My bad work around for going straight from top cone to cone pickup
+        else if ((commander.getArmPosition() == ArmPos.groundGripperConePick || commander.getArmPosition() == ArmPos.groundGripperCone) && armTargetPrevious == ArmPos.topNodeCone || actualCommand == ArmPos.topToGround){
+            if(useNegativeSide){
+                if(shoulder.getShoulderAngle() < -47.5){
+                    actualCommand = ArmPos.topToGround;
+                // } else if(elbow.getElbowAngle() < -173){
+                //     actualCommand = ArmPos.groundGripperCone;
+                } else {
+                    actualCommand = commander.getArmPosition();
+                }
+            } else {
+                if(shoulder.getShoulderAngle() > 47.5){
+                    actualCommand = ArmPos.topToGround;
+                // } else if(elbow.getElbowAngle() < -172.5){
+                //     actualCommand = ArmPos.groundGripperCone;
+                } else {
+                    actualCommand = commander.getArmPosition();
+                }
+            }
+        }
+        else if (commander.getArmPosition() == ArmPos.topNodeCone && (armTargetPrevious == ArmPos.groundGripperConePick || armTargetPrevious == ArmPos.groundGripperCone) || actualCommand == ArmPos.groundToTop){
+
+            SmartDashboard.putNumber("Cur SHoulder ANgle",shoulder.getShoulderAngle());
+
+            if(Math.abs(shoulder.getShoulderAngle()) < 75){
+                actualCommand = commander.getArmPosition();
+                SmartDashboard.putBoolean("AHHHHHH", false);
+            } else {
+                actualCommand = ArmPos.groundToTop;
+                SmartDashboard.putBoolean("AHHHHHH", true);
+            }
+
+            // if(shoulder.getShoulderAngle()  25){
+            //     actualCommand = ArmPos.groundToTop;
+            // } else {
+            //     actualCommand = commander.getArmPosition();
+            // }
+        }
         //If the commanded position is != the previously set position
         else if (commander.getArmPosition() != armTargetPrevious) {
             if (useNegativeSide) {
@@ -495,9 +547,7 @@ public class Arm {
                     actualCommand = ArmPos.outOfHopperToDirection;
                 }
                 transitionStateInProgress = true;
-            } 
-
-
+            }
             
             //This happens if the arm is in the positive zone and wants to go back to the hopper.
             else if (currentCommandedZone == ArmZone.hopper && currentZone == ArmZone.postive) {
@@ -513,13 +563,12 @@ public class Arm {
                     }
                 }
                 transitionStateInProgress = true;
-            } 
+            }
             
             //This happens if we want to go negative and we are in the hopper.
             else if (currentCommandedZone == ArmZone.negative && currentZone == ArmZone.hopper) {
                 if (commander.getArmPosition() == ArmPos.humanPlayerPickup || commander.getArmPosition() == ArmPos.humanPlayerReady) {
                     actualCommand = ArmPos.outOfHumanPlayerInitialExtension;
-
                 } else if (commander.getArmPosition() == ArmPos.groundGripperCone || commander.getArmPosition() == ArmPos.groundGripperConePick) {
                     actualCommand = ArmPos.outOfHopperToGround;
                 } else {

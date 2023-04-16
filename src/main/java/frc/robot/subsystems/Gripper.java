@@ -26,8 +26,7 @@ public class Gripper {
     
 
     public void action(RobotCommander commander) {
-        if ((commander.getArmPosition() != ArmPos.humanPlayerPickup && armPositionPrev == ArmPos.humanPlayerPickup) ||
-            (commander.getArmPosition() != ArmPos.groundGripperConePick && armPositionPrev == ArmPos.groundGripperConePick)) {
+        if ((commander.getArmPosition() != ArmPos.humanPlayerPickup && armPositionPrev == ArmPos.humanPlayerPickup)) {
             // start timer
             timer = 150;
 

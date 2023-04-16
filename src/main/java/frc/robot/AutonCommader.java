@@ -142,11 +142,20 @@ public class AutonCommader extends RobotCommander{
     @Override
     public boolean useNegativeSide() {
         double angle =MathUtil.inputModulus(Pigeon.getAngle(),-180,180);
-        if (angle > -180 && angle < 0) {
-            return true;
-        } else  {
-            return false;
+        if(allaince == Alliance.Red){
+            if (angle > -180 && angle < 0) {
+                return false;
+            } else  {
+                return true;
+            }
+        } else {
+            if (angle > -180 && angle < 0) {
+                return true;
+            } else  {
+                return false;
+            }
         }
+
     }
 
     public boolean overrideNegSide(){
@@ -174,14 +183,18 @@ public class AutonCommader extends RobotCommander{
 
     @Override
     public IntakePos getIntakePosition() {
-        if (getArmPosition() != ArmPos.Zero && 
-        getArmPosition() != ArmPos.manual && 
-        getArmPosition() != ArmPos.intake && 
-        Intake.angleEncoderAngle < 115) { 
-            return IntakePos.armMoving;
-        } else {
-            return auton.intakePos;
-        }
+        // if(auton.overrideIntake){
+        //     return auton.intakePos;
+        // } else {
+            if ((getArmPosition() != ArmPos.Zero && 
+            getArmPosition() != ArmPos.manual && 
+            getArmPosition() != ArmPos.intake && 
+            Intake.angleEncoderAngle < 130)) { 
+                return IntakePos.armMoving;
+            } else {
+                return auton.intakePos;
+            }
+        // }
     }
 
     @Override
@@ -200,5 +213,21 @@ public class AutonCommader extends RobotCommander{
     public boolean getCubeMode() {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    @Override
+    public double getHopperSpeed() {
+        // TODO Auto-generated method stub
+        return auton.hopperSpeed;
+    }
+
+    public boolean getNewAutoBal(){
+        return auton.newAutoBal;
+    }
+
+    @Override
+    public boolean intakeCone() {
+        // TODO Auto-generated method stub
+        return auton.coneIntake;
     }
 }

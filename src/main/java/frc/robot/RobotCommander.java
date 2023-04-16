@@ -36,4 +36,6 @@ public abstract class RobotCommander {
     public abstract boolean runHopper();
     public abstract boolean getCubeStopIntake();
     public abstract boolean getCubeMode();
+    public abstract double getHopperSpeed();
+    public abstract boolean intakeCone();
 }

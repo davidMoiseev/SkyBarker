@@ -33,28 +33,34 @@ public final class Constants {
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1;
     public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 2;
     public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 18;
-    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = compBot ? -Math.toRadians(164.091796875 +180) : -Math.toRadians(349.365234375-180); //343.740234375
+    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = compBot ? -Math.toRadians(343.125) : -Math.toRadians(349.365234375-180); //343.740234375
 
     public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 3;
     public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 4;
     public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 19;
-    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = compBot ? -Math.toRadians(271.23046875-180) : -Math.toRadians(3.779296875+180); //35.27 + 180
+    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = compBot ? -Math.toRadians(90.17578125) : -Math.toRadians(3.779296875+180); //35.27 + 180
 
     public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 5;
     public static final int BACK_LEFT_MODULE_STEER_MOTOR = 6;
     public static final int BACK_LEFT_MODULE_STEER_ENCODER = 20;
-    public static final double BACK_LEFT_MODULE_STEER_OFFSET = compBot ? -Math.toRadians(96.591796875+180) : -Math.toRadians(308.935546875-180); //243.57 - 180
+    public static final double BACK_LEFT_MODULE_STEER_OFFSET = compBot ? -Math.toRadians(284.765625) : -Math.toRadians(308.935546875-180); //243.57 - 180
 
     public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 7;
     public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 8;
     public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 21;
-    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = compBot ? -Math.toRadians(301.201171875) : -Math.toRadians(55.72265625+180); //235.634765625 //55.283203125+180
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = compBot ? -Math.toRadians(301.46484375 - .7) : -Math.toRadians(55.72265625+180); //235.634765625 //55.283203125+180
 
     public static final double SLOW_SPEED_MULTIPLIER = .5;
 
     // LED constants (rgb)
     public static final int LED_PWM = 2;
     public static final int LED_LENGTH = 19;
+
+    public static final int[] LED_FANCY_BASE = {255, 60, 0};
+    public static final int LED_RED_DEVIATION = 100;
+    public static final int LED_YELLOW_DEVIATION = 100;
+    public static final int LED_FANCY_ITERATION = 2;
+    public static final int LED_RESET_TIMER = 1000;
 
     public static final int[] LED_TELEOP_DEFAULT = {0, 0, 255};
     public static final int[] LED_AUTON_RED = {255, 0, 0};
@@ -63,7 +69,7 @@ public final class Constants {
     public static final int[] LED_DETECT_CORRECT = {0, 255, 0};
     public static final int[] LED_DETECT_BAD = {255, 0, 0};
 
-    public static final int[] LED_CUBE_PICKUP = {196, 46, 255};
+    public static final int[] LED_CUBE_PICKUP = {100, 0, 255};
     public static final int[] LED_CONE_PICKUP = {252, 236, 0};
 
     public static final double LED_LEFT_THRESH_LOW = 9;
@@ -126,7 +132,7 @@ public final class Constants {
     public static final double WRIST_RATIO = (9.0)*(7.0)*(96.0/36.0);  // Ratio
 
     public static final double SHOULDER_OFFSET = compBot ? 112.709 : 160.049;
-    public static final double ELBOW_OFFSET = compBot ? 50.889 : 167.783;
+    public static final double ELBOW_OFFSET = compBot ? -5.801 : 167.783; //50.889
 
     //Arm pid motion magic gains
     public static final double SHOULDER_MOTOR_kF = 0;

@@ -68,7 +68,7 @@ public class Extension {
     public void updatePose() {
         extensionPosition = this.convertToInches(extension.getSelectedSensorPosition()); 
         achivedTarget = Math.abs(this.convertToInches(extension.getClosedLoopTarget()) - extensionPosition) < 1;
-        achivedTargetAuto = Math.abs(this.convertToInches(extension.getClosedLoopTarget()) - extensionPosition) < .5;
+        achivedTargetAuto = Math.abs(this.convertToInches(extension.getClosedLoopTarget()) - extensionPosition) < 3;
         SmartDashboard.putNumber("Extension Closed loop target", this.convertToInches(extension.getClosedLoopTarget()));
         SmartDashboard.putNumber("Extension", extensionPosition);
         HotLogger.Log("Extension Pos", extensionPosition);

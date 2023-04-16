@@ -1,5 +1,7 @@
 package frc.robot.Autons;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
@@ -8,21 +10,30 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Arm.ArmPos;
 import frc.robot.subsystems.Arm.IntakePos;
 import frc.robot.subsystems.Arm.IntakeSpeed;
 
 public abstract class AutonBase {
+    public boolean coneIntake;
+    public boolean newAutoBal;
+    public boolean overrideIntake;
+    public double hopperSpeed;
     public State desState;
     public Rotation2d targetTheta;
     public Timer timer;
     public Pose2d initalPose;
+    public double initalAngle;
     public Pose2d endingPose;
-    public Arm.ArmPos armPos;
+    public Arm.ArmPos armPos = ArmPos.Zero;
     public boolean intakeOn;
     public boolean pickUpObject;
     public boolean driving;
@@ -75,6 +86,15 @@ public abstract class AutonBase {
             new TrajectoryConfig(4, 3));
     }
 
+    public Trajectory importTraj(String loc){
+        try {
+            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(loc);
+            return TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+        } catch (IOException ex) {
+            DriverStation.reportError("Unable to open trajectory: " + loc, ex.getStackTrace());
+            return new Trajectory();
+        }
+    }
     
     public State getState(double time, Trajectory traj, Rotation2d heading){
         State curState = traj.sample(time);

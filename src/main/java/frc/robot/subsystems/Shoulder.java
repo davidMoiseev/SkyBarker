@@ -91,7 +91,7 @@ public class Shoulder {
     public void updatePose() {
         shoulderAngle = this.convertToDegrees(shoulder.getSelectedSensorPosition());
         achivedTarget = Math.abs(this.convertToDegrees(shoulder.getClosedLoopTarget()) - shoulderAngle) < 5;
-        achivedTargetAuto = Math.abs(this.convertToDegrees(shoulder.getClosedLoopTarget()) - shoulderAngle) < 1;
+        achivedTargetAuto = Math.abs(this.convertToDegrees(shoulder.getClosedLoopTarget()) - shoulderAngle) < 2.5;
         SmartDashboard.putNumber("Shoulder Angle", shoulderAngle);
         SmartDashboard.putNumber("Shoulder Closed loop target", this.convertToDegrees(shoulder.getClosedLoopTarget()));
         SmartDashboard.putNumber("Shoulder Angle CANCODER", shoulderEncoder.getAbsolutePosition());

@@ -117,10 +117,10 @@ public class TeleopCommander extends RobotCommander{
 
     public IntakeSpeed getIntakeSpeed(){
         if(operator.getRightTriggerAxis() > .3){
-            if(!getCubeMode()){
-                intakeSpeed = IntakeSpeed.onCube;
-            } else {
+            if(intakeCone()){
                 intakeSpeed = IntakeSpeed.onCone;
+            } else {
+                intakeSpeed = IntakeSpeed.onCube;
             }
         } else if (operator.getLeftTriggerAxis() > .3){
             intakeSpeed = IntakeSpeed.out;
@@ -138,21 +138,19 @@ public class TeleopCommander extends RobotCommander{
         boolean Trigger_right = (operator.getRightTriggerAxis() > .3);
         boolean Trigger_left = (operator.getLeftTriggerAxis() > .3);
             if (!this.getManualMode()) {
-                if (getArmPosition() != ArmPos.Zero && 
+                if(getArmPosition() == ArmPos.humanPlayerPickup ||
+                    getArmPosition() == ArmPos.humanPlayerReady){
+                        intakePos = IntakePos.humanIntake;
+                    }
+                else if (getArmPosition() != ArmPos.Zero && 
                     getArmPosition() != ArmPos.manual && 
                     getArmPosition() != ArmPos.intake && 
-                    Intake.angleEncoderAngle < 115) { 
+                    Intake.angleEncoderAngle < 130) { 
                         intakeArray[0] = 102;
                         intakePos = IntakePos.armMoving;
-                } else if(getCubeMode()) {
-                    if (Dpad_left && !(Trigger_right || Trigger_left || Dpad_right || Dpad_updown)) {
-                        intakePos = IntakePos.pack;
-                    } else if (Dpad_right && !(Trigger_left || Trigger_right || Dpad_left || Dpad_updown)) {
+                } else if(intakeCone()) {
+                    if(Dpad_right){
                         intakePos = IntakePos.collectCone;
-                    } else if (Dpad_updown && !(Trigger_left || Trigger_right || Dpad_left || Dpad_right)) {
-                        intakePos = IntakePos.station;
-                    } else {
-                        intakePos = IntakePos.none;
                     }
                 } else {
                     if (Dpad_left) {
@@ -177,7 +175,7 @@ public class TeleopCommander extends RobotCommander{
     }
 
     public boolean getCubeStopIntake(){
-        return operator.getRightStickButton();
+        return false;
     }
 
     public boolean getManualMode(){
@@ -189,10 +187,14 @@ public class TeleopCommander extends RobotCommander{
         return manualMode;
     } 
     
+    public boolean resetModules(){
+        return driver.getStartButton();
+    }
+
     public ArmPos getArmPosition(){
         if (this.getManualMode()) {
             return ArmPos.manual;
-        } else if (operator.getPOV() == 90) {
+        } else if (operator.getLeftBumper()) { //operator.getPOV() == 90
             return ArmPos.intake;
         } else if (operator.getPOV() == 0) {
             return ArmPos.lowerNode;
@@ -211,6 +213,8 @@ public class TeleopCommander extends RobotCommander{
             } else {
                 return ArmPos.middleNodeCone;
             }
+            // return ArmPos.yeetCube;
+            // return ArmPos.groundGripperCone;
         } else if(operator.getAButton() || driver.getXButton()) {
             return ArmPos.packagePos;
         }else if(operator.getXButton()){
@@ -295,14 +299,14 @@ public class TeleopCommander extends RobotCommander{
     @Override
     public boolean getAutoBalance() {
         // TODO Auto-generated method stub
-        return driver.getYButton();
+        return false;
     }
 
     private double overrideGripper(){
         if (driver.getRightTriggerAxis() > .15) {
             return .8;
-        } else if (driver.getLeftTriggerAxis() > .15) {
-            return -driver.getLeftTriggerAxis();
+        } else if (driver.getYButton()) {
+            return -8;
         } else {
             return operator.getLeftY();
         }
@@ -351,6 +355,22 @@ public class TeleopCommander extends RobotCommander{
 
     public boolean getAutoLine() {
         return false;
+    }
+
+    @Override
+    public double getHopperSpeed() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public boolean intakeCone() {
+        // TODO Auto-generated method stub
+        return operator.getRightStickButton();
+    }
+
+    public boolean autoAim(){
+        return driver.getLeftTriggerAxis() > .4;
     }
     
 }
